@@ -1,8 +1,8 @@
 import { FormEvent, useState } from 'react'
-import AccountForm from './components/loginForm/AccountForm'
-import AddressForm from './components/loginForm/AddressForm'
-import useMultistepForm from './hooks/useMultistepForm'
-import UserForm from './components/loginForm/UserForm'
+import AccountForm from './AccountForm'
+import AddressForm from './AddressForm'
+import useMultistepForm from "../../hooks/useMultistepForm"
+import UserForm from './UserForm'
 
 interface FormData {
   firstName: string
@@ -26,7 +26,7 @@ const INITIAL_FORM_DATA: FormData = {
   zip: ''
 }
 
-function App() {
+function LoginForm() {
   const [formData, setFormData] = useState(INITIAL_FORM_DATA)
   const updateFields = (fields: Partial<FormData>) => setFormData(prev => {
     return { ...prev, ...fields }
@@ -77,4 +77,4 @@ function App() {
   </div>
 }
 
-export default App
+export default LoginForm

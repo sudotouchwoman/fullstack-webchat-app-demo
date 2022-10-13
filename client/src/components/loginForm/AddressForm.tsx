@@ -1,7 +1,5 @@
-import React from 'react'
 import FormContentWrapper from './FormContentWrapper'
 import { FormStepProps } from './Types'
-
 type Address = {
   address: string
   city: string
