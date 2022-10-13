@@ -28,12 +28,21 @@ const INITIAL_FORM_DATA: FormData = {
 
 function App() {
   const [formData, setFormData] = useState(INITIAL_FORM_DATA)
+  const updateFields = (fields: Partial<FormData>) => setFormData(prev => {
+    return { ...prev, ...fields }
+  })
   const { steps, step, currentStepIndex, isFirstStep, isLastStep, back, next } =
-    useMultistepForm([<UserForm />, <AddressForm />, <AccountForm />])
+    useMultistepForm(
+      [<UserForm {...formData} updateFields={updateFields} />,
+      <AddressForm {...formData} updateFields={updateFields} />,
+      <AccountForm {...formData} updateFields={updateFields} />]
+    )
 
   const onFormSubmit = (e: FormEvent) => {
     e.preventDefault()
-    next()
+    if (!isLastStep) return next()
+    alert(`Welcome, ${formData.firstName}!
+    You are now logged in as ${formData.email}`)
   }
 
   return <div
@@ -60,7 +69,7 @@ function App() {
           justifyContent: "flex-end"
         }}>
         {!isFirstStep && <button type='button' onClick={back}>Back</button>}
-        <button type='submit' onClick={next}>
+        <button type='submit'>
           {isLastStep ? "Finish" : "Next"}
         </button>
       </div>

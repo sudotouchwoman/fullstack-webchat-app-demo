@@ -1,15 +1,30 @@
 import React from 'react'
 import FormContentWrapper from './FormContentWrapper'
+import { FormStepProps } from './Types'
 
-type Props = {}
+type Account = {
+    email: string
+    password: string
+}
+type AccountProps = FormStepProps<Account>
 
-function AccountForm({ }: Props) {
+function AccountForm({ email, password, updateFields }: AccountProps) {
     return (
         <FormContentWrapper title='Sign in with Email'>
             <label>Email</label>
-            <input autoFocus required type="email" />
+            <input autoFocus
+                required
+                type="email"
+                value={email}
+                onChange={e => updateFields({ email: e.target.value })}
+            />
             <label>Password</label>
-            <input required type="password"></input>
+            <input
+                required
+                type="password"
+                value={password}
+                onChange={e => updateFields({ password: e.target.value })}
+            />
         </FormContentWrapper>
     )
 }
