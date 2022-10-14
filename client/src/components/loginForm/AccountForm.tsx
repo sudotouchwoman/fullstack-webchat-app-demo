@@ -1,11 +1,11 @@
 import FormContentWrapper from './FormContentWrapper'
-import { FormStepProps } from './Types'
+import { ModifiableProps } from './Types'
 
 type Account = {
     email: string
     password: string
 }
-type AccountProps = FormStepProps<Account>
+type AccountProps = ModifiableProps<Account>
 
 function AccountForm({ email, password, updateFields }: AccountProps) {
     return (

@@ -1,7 +1,7 @@
 import { FormEvent, useState } from 'react'
+import useMultistepForm from "../../hooks/useMultistepForm"
 import AccountForm from './AccountForm'
 import AddressForm from './AddressForm'
-import useMultistepForm from "../../hooks/useMultistepForm"
 import UserForm from './UserForm'
 
 interface FormData {
@@ -26,7 +26,11 @@ const INITIAL_FORM_DATA: FormData = {
   zip: ''
 }
 
-function LoginForm() {
+type LoginFormProps = {
+  onIdSubmit: (data: FormData) => void
+}
+
+export default function LoginForm({ onIdSubmit }: LoginFormProps) {
   const [formData, setFormData] = useState(INITIAL_FORM_DATA)
   const updateFields = (fields: Partial<FormData>) => setFormData(prev => {
     return { ...prev, ...fields }
@@ -41,8 +45,7 @@ function LoginForm() {
   const onFormSubmit = (e: FormEvent) => {
     e.preventDefault()
     if (!isLastStep) return next()
-    alert(`Welcome, ${formData.firstName}!
-    You are now logged in as ${formData.email}`)
+    onIdSubmit(formData)
   }
 
   return <div
@@ -76,5 +79,3 @@ function LoginForm() {
     </form>
   </div>
 }
-
-export default LoginForm

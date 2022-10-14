@@ -1,11 +1,11 @@
 import FormContentWrapper from './FormContentWrapper'
-import { FormStepProps } from './Types'
+import { ModifiableProps } from './Types'
 type Address = {
   address: string
   city: string
   zip: string
 }
-type AddressProps = FormStepProps<Address>
+type AddressProps = ModifiableProps<Address>
 
 function AddressForm({ address, city, zip, updateFields }: AddressProps) {
   return (

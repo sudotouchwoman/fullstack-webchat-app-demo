@@ -1,12 +1,12 @@
 import FormContentWrapper from './FormContentWrapper'
-import { FormStepProps } from './Types'
+import { ModifiableProps } from './Types'
 
 type UserData = {
     firstName: string
     lastName: string
     age: string
 }
-type UserProps = FormStepProps<UserData>
+type UserProps = ModifiableProps<UserData>
 
 function UserForm({ firstName, lastName, age, updateFields }: UserProps) {
     return (
