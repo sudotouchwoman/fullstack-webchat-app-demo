@@ -1,44 +1,36 @@
 import { FormEvent, useState } from 'react'
 import useMultistepForm from "../../hooks/useMultistepForm"
 import AccountForm from './AccountForm'
-import AddressForm from './AddressForm'
 import UserForm from './UserForm'
 
-interface FormData {
+export interface SignUpFormData {
   firstName: string
   lastName: string
   age: string
   email: string
   password: string
-  city: string
-  address: string
-  zip: string
 }
 
-const INITIAL_FORM_DATA: FormData = {
+const INITIAL_FORM_DATA: SignUpFormData = {
   firstName: '',
   lastName: '',
   age: '',
   email: '',
   password: '',
-  city: '',
-  address: '',
-  zip: ''
 }
 
-type LoginFormProps = {
-  onIdSubmit: (data: FormData) => void
+type SignUpFormProps = {
+  onIdSubmit: (data: SignUpFormData) => void
 }
 
-export default function LoginForm({ onIdSubmit }: LoginFormProps) {
+export default function SignUpForm({ onIdSubmit }: SignUpFormProps) {
   const [formData, setFormData] = useState(INITIAL_FORM_DATA)
-  const updateFields = (fields: Partial<FormData>) => setFormData(prev => {
+  const updateFields = (fields: Partial<SignUpFormData>) => setFormData(prev => {
     return { ...prev, ...fields }
   })
   const { steps, step, currentStepIndex, isFirstStep, isLastStep, back, next } =
     useMultistepForm(
       [<UserForm {...formData} updateFields={updateFields} />,
-      <AddressForm {...formData} updateFields={updateFields} />,
       <AccountForm {...formData} updateFields={updateFields} />]
     )
 

@@ -1,4 +1,4 @@
-import React, { ReactNode, useContext } from 'react'
+import React, { ReactNode, useContext, useEffect } from 'react'
 import useLocalStorage from '../hooks/useLocalStorage'
 
 interface Credentials {
@@ -22,10 +22,19 @@ export function useAccount() {
     return useContext(AccountContext)
 }
 
-type AccountContextProps = { children: ReactNode }
+type AccountContextProps = { id: string, children: ReactNode }
 
-export default function AccountProvider({ children }: AccountContextProps) {
-    const [account, setAccount] = useLocalStorage("user-account", defaultCredentials)
+export default function AccountProvider({ id, children }: AccountContextProps) {
+    // how would one sync LS with backend?
+    // like, once we are signed in, account settings
+    // in this context must correspond to the id
+    // these can me fetched from API...Another hook?
+    const [account, setAccount, cleanAccount] = useLocalStorage(
+        "user-account",
+        defaultCredentials()
+    )
+    // drop account info on logouts
+    useEffect(cleanAccount, [id])
     const logInAccount = (a: Partial<Credentials>) => {
         // perform some sort of credentials validation here?
         // then update account info

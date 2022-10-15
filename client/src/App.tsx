@@ -1,80 +1,34 @@
-import { FormEvent, useState } from 'react'
-import AccountForm from './components/loginForm/AccountForm'
-import AddressForm from './components/loginForm/AddressForm'
-import useMultistepForm from './hooks/useMultistepForm'
-import UserForm from './components/loginForm/UserForm'
+import Dashboard from './components/dashboard/Dashboard'
+import SignInForm, { SignInFormData } from './components/loginForm/SignInForm'
+import AccountProvider from './contexts/AccountProvider'
+import ContactsProvider from './contexts/ContactsProvider'
+import useLocalStorage from './hooks/useLocalStorage'
+import 'bootstrap/dist/css/bootstrap.min.css'
 
-interface FormData {
-  firstName: string
-  lastName: string
-  age: string
-  email: string
-  password: string
-  city: string
-  address: string
-  zip: string
-}
-
-const INITIAL_FORM_DATA: FormData = {
-  firstName: '',
-  lastName: '',
-  age: '',
-  email: '',
-  password: '',
-  city: '',
-  address: '',
-  zip: ''
-}
+const DEFAULT_ID = ""
+const idFound = (id: string) => id !== DEFAULT_ID
 
 function App() {
-  const [formData, setFormData] = useState(INITIAL_FORM_DATA)
-  const updateFields = (fields: Partial<FormData>) => setFormData(prev => {
-    return { ...prev, ...fields }
-  })
-  const { steps, step, currentStepIndex, isFirstStep, isLastStep, back, next } =
-    useMultistepForm(
-      [<UserForm {...formData} updateFields={updateFields} />,
-      <AddressForm {...formData} updateFields={updateFields} />,
-      <AccountForm {...formData} updateFields={updateFields} />]
-    )
-
-  const onFormSubmit = (e: FormEvent) => {
-    e.preventDefault()
-    if (!isLastStep) return next()
-    alert(`Welcome, ${formData.firstName}!
-    You are now logged in as ${formData.email}`)
+  const [id, setId] = useLocalStorage("user-id", DEFAULT_ID)
+  // id is stored in local storage
+  // in case it was not found, ask user to login
+  const onSignIn = (d: SignInFormData): string | undefined => {
+    // do some validation/fetch data there
+    // return a message string on error
+    console.log(`Set id: ${d}`)
+    setId(d.email)
+    return undefined
   }
-
-  return <div
-    style={{
-      position: "relative",
-      background: "white",
-      border: "1px solid black",
-      padding: "2rem",
-      margin: "1rem",
-      borderRadius: ".5rem",
-      fontFamily: 'serif'
-    }}>
-
-    <form onSubmit={onFormSubmit}>
-      <div style={{ position: "absolute", top: ".5rem", right: ".5rem" }}>
-        {currentStepIndex + 1} / {steps.length}
-      </div>
-      {step}
-      <div
-        style={{
-          marginTop: "1rem",
-          display: "flex",
-          gap: ".5rem",
-          justifyContent: "flex-end"
-        }}>
-        {!isFirstStep && <button type='button' onClick={back}>Back</button>}
-        <button type='submit'>
-          {isLastStep ? "Finish" : "Next"}
-        </button>
-      </div>
-    </form>
-  </div>
+  if (!idFound(id)) return <SignInForm onSignIn={onSignIn} />
+  // Another thing to think of is storage cleanup on logouts
+  // which can be achieved with useEffect
+  return (
+    <AccountProvider id={id}>
+      <ContactsProvider id={id}>
+        <Dashboard id={id} />
+      </ContactsProvider>
+    </AccountProvider>
+  )
 }
 
 export default App

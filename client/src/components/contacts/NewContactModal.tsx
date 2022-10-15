@@ -7,7 +7,7 @@ type NewContactModalProps = {
 }
 
 function NewContactModal({ closeModal }: NewContactModalProps) {
-    const modalErrRef = useRef<string>("")
+    const [modalErr, setModalErr] = useState("")
     const idRef = useRef<HTMLInputElement>(null)
     const nameRef = useRef<HTMLInputElement>(null)
     const { contacts, createContact } = useContacts()
@@ -18,18 +18,20 @@ function NewContactModal({ closeModal }: NewContactModalProps) {
         const name = nameRef.current?.value
         if (id === undefined || name === undefined) return
         // make sure user has no contact with such id
-        modalErrRef.current = "Sorry, looks like this contact already exists!"
-        if (contacts.find(c => c.id === id) !== undefined) return
-        modalErrRef.current = ""
+        if (contacts.find(c => c.id === id) !== undefined) return setModalErr(
+            "Sorry, looks like this contact already exists!"
+        )
         createContact(id, name)
         closeModal()
     }
 
-    const hasError = modalErrRef.current === ""
+    // feature proposal: add animation after new contact/chat is created
+    // this can be possibly done via @keyframes
+    const hasError = modalErr === ""
     return (
         <>
             <Modal.Header closeButton>
-                {hasError ? "Create Contact": modalErrRef.current}
+                {hasError ? "Create Contact" : modalErr}
             </Modal.Header>
             <Modal.Body>
                 <Form onSubmit={handleSubmit}>
