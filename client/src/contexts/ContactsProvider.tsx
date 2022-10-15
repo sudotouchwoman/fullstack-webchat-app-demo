@@ -10,6 +10,9 @@ export type ContactsContent = {
     createContact: (id: string, name: string) => void
 }
 
+const isContact = (a: any): a is Contact => {
+    return "id" in a && "name" in a
+}
 const ContactsContext = React.createContext<ContactsContent>({
     contacts: [],
     createContact: (id: string, name: string) => { }
@@ -22,9 +25,13 @@ export function useContacts() {
 type ContactsContextProps = { id: string, children: ReactNode }
 
 export default function ContactsProvider({ id, children }: ContactsContextProps) {
-    const [contacts, setContacts, cleanContacts] = useLocalStorage("user-contacts", (): Contact[] => [])
+    const [contacts, setContacts] = useLocalStorage(
+        "user-contacts",
+        (): Contact[] => [],
+        (a: any): a is Contact[] => { return Array.isArray(a) && a.every(isContact) }
+    )
     //  drop account info on logouts
-    useEffect(cleanContacts, [id])
+    // useEffect(cleanContacts, [id])
     const createContact = (id: string, name: string) => {
         // if user already has a contact with this id, omit the update
         // generally, the underlying component should perform such a check
@@ -32,7 +39,7 @@ export default function ContactsProvider({ id, children }: ContactsContextProps)
         if (contacts.find(c => c.id === id) !== undefined) return
         // one would like to make a POST request there or drop
         // a message via WebSockets. For now, contacts are merely stored in LS
-        setContacts((prev: Contact[]) => [...prev, { id, name }])
+        setContacts([...contacts, { id, name }])
     }
     return (
         <ContactsContext.Provider value={{ contacts, createContact }}>

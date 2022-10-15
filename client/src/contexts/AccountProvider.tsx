@@ -10,6 +10,9 @@ type Account = Credentials & {
     logInAccount: (a: Credentials) => void
 }
 
+const isCredentials = (a: any): a is Credentials => {
+    return "firstName" in a && "lastName" in a && "email" in a
+}
 const defaultCredentials = (): Credentials => {
     return { firstName: '', lastName: '', email: '' }
 }
@@ -29,20 +32,19 @@ export default function AccountProvider({ id, children }: AccountContextProps) {
     // like, once we are signed in, account settings
     // in this context must correspond to the id
     // these can me fetched from API...Another hook?
-    const [account, setAccount, cleanAccount] = useLocalStorage(
+    const [account, setAccount] = useLocalStorage(
         "user-account",
-        defaultCredentials()
+        defaultCredentials(),
+        isCredentials
     )
     // drop account info on logouts
-    useEffect(cleanAccount, [id])
+    // useEffect(cleanAccount, [id])
     const logInAccount = (a: Partial<Credentials>) => {
         // perform some sort of credentials validation here?
         // then update account info
         // what if we would like to update the account in steps?
         // guess this logic should be managed by the context consumer
-        setAccount(prev => {
-            return { ...prev, ...a }
-        })
+        setAccount({...account, ...a})
     }
     return (
         <AccountContext.Provider value={{ ...account, logInAccount }}>

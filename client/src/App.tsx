@@ -9,16 +9,21 @@ const DEFAULT_ID = ""
 const idFound = (id: string) => id !== DEFAULT_ID
 
 function App() {
-  const [id, setId] = useLocalStorage("user-id", DEFAULT_ID)
+  const [id, setId] = useLocalStorage(
+    "user-id",
+    DEFAULT_ID,
+    (a): a is string => typeof a === "string"
+  )
   // id is stored in local storage
   // in case it was not found, ask user to login
   const onSignIn = (d: SignInFormData): string | undefined => {
     // do some validation/fetch data there
     // return a message string on error
-    console.log(`Set id: ${d}`)
+    console.log(`Set id: ${JSON.stringify(d)}`)
     setId(d.email)
     return undefined
   }
+  console.log(idFound(id)? "User signed in" : "Redirects to login page")
   if (!idFound(id)) return <SignInForm onSignIn={onSignIn} />
   // Another thing to think of is storage cleanup on logouts
   // which can be achieved with useEffect

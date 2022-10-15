@@ -1,36 +1,41 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useReducer, useState } from "react"
 
 const LOCAL_STORAGE_PREFIX = "webchat-app-"
 const isFuncValue = <T>(f: any): f is () => T => {
     return (typeof f === "function") && (f.length === 0)
 }
 
-const useLocalStorage = <T>(key: string, defaultT: T | (() => T) | undefined):
-    [T, React.Dispatch<React.SetStateAction<T>>, () => void] => {
+const useLocalStorage = <T>(key: string, defaultT: T | (() => T), typeGuard: (a: any) => a is T):
+    [T, React.Dispatch<T>, () => void] => {
     // convenience hook that wraps useState and localStorage
     // to load/set values persistently between sessions
     const lsKey = LOCAL_STORAGE_PREFIX + key
-    const defValue = isFuncValue(defaultT) ? defaultT() : defaultT
-    const [value, setValue] = useState(() => {
+    const initialT = isFuncValue(defaultT) ? defaultT() : defaultT
+
+    const defValue = () => {
         const jsonValue = localStorage.getItem(lsKey)
-        if (jsonValue === null) return defValue
+        if (jsonValue === null) return isFuncValue(defaultT) ? defaultT() : defaultT
         // this is a bit hacky way to tell TS compiler
         // not to yell about unsafe typing as `JSON.parse` actually
         // returns `any` type
-        console.log(`Loaded ${key} from LS: ${jsonValue}`)
+        console.log(`LS: Reads ${key}: ${jsonValue}`)
         const parsed = JSON.parse(jsonValue)
-        return parsed as T ? parsed : undefined
-    })
+        return typeGuard(parsed) ? parsed : initialT
+    }
     // update entry in localStorage any time the value is altered
-    useEffect(() => {
-        if (value === defValue) return console.log(`${key} save omitted`)
-        const jsonified = JSON.stringify(value)
-        console.log(`Saves ${key} in local storage: ${jsonified}`)
+    const [state, stateDispatcher] = useReducer((prevValue: T, newValue: T) => {
+        if (prevValue === newValue) {
+            console.log(`${key} save omitted`)
+            return prevValue
+        }
+        const jsonified = JSON.stringify(newValue)
+        console.log(`LS: Saves ${key}: ${jsonified}`)
         localStorage.setItem(lsKey, jsonified)
-    }, [value])
-    return [value, setValue, () => {
-        console.log(`${key} dropped from LS`)
-        localStorage.removeItem(key) 
+        return newValue
+    }, defValue())
+    return [state, stateDispatcher, () => {
+        console.log(`LS: removes ${key}`)
+        localStorage.removeItem(key)
     }]
 }
 
